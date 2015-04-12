@@ -17,6 +17,8 @@ import android.widget.TextView;
 
 import com.goldenhand.bleakfalls.bad_jokes_fragment.dummy.DummyContent;
 
+import java.util.ArrayList;
+
 /**
  * A list fragment representing a list of Jokes. This fragment
  * also supports tablet devices by allowing list items to be given an
@@ -28,7 +30,7 @@ import com.goldenhand.bleakfalls.bad_jokes_fragment.dummy.DummyContent;
  */
 public class JokeListFragment extends ListFragment {
 
-    Joke[] mJokes;
+    ArrayList mJokes = new ArrayList<Joke>();
     /**
      * The serialization (saved instance state) Bundle key representing the
      * activated item position. Only used on tablets.
@@ -88,11 +90,12 @@ public class JokeListFragment extends ListFragment {
         Resources res = getResources();
         String[] mQuestions = res.getStringArray(R.array.questions);
         String[] mAnswers = res.getStringArray(R.array.answers);
-        mJokes = new Joke[mQuestions.length];
         for (int i = 0; i < mQuestions.length; i++) {
             Joke newJoke = new Joke(mQuestions[i], mAnswers[i]);
-            mJokes[i] = newJoke;
+            mJokes.add(newJoke);
         }
+
+        setListAdapter(new JokeAdapter(getActivity(), R.layout.activity_joke_item, mJokes));
         /*setListAdapter(new ArrayAdapter<DummyContent.DummyItem>(
                 getActivity(),
                 android.R.layout.simple_list_item_activated_1,
@@ -109,7 +112,6 @@ public class JokeListFragment extends ListFragment {
             setActivatedPosition(savedInstanceState.getInt(STATE_ACTIVATED_POSITION));
         }
 
-        setListAdapter(new JokeAdapter(getActivity(), R.layout.activity_joke_item, mJokes));
         // Restore the previously serialized activated item position.
     }
 
@@ -175,10 +177,10 @@ public class JokeListFragment extends ListFragment {
 
     private class JokeAdapter extends ArrayAdapter<Joke> {
         private int mResource;
-        private Joke[] mJokes;
+        private ArrayList<Joke> mJokes;
         Context mContext;
 
-        public JokeAdapter(Context context, int resource, Joke[] jokes) {
+        public JokeAdapter(Context context, int resource, ArrayList<Joke> jokes) {
             super(context, resource);
             mContext = context;
             mResource = resource;
@@ -187,6 +189,7 @@ public class JokeListFragment extends ListFragment {
 
         public View getView(int position, View row, ViewGroup parent) {
             ViewHolder holder = new ViewHolder();
+            System.out.println("created adapter");
             if (row==null) {
                 LayoutInflater inflater = ((Activity)mContext).getLayoutInflater();
                 row = inflater.inflate(mResource, parent, false);
@@ -198,7 +201,7 @@ public class JokeListFragment extends ListFragment {
                 holder = (ViewHolder) row.getTag();
             }
 
-            Joke currentJoke = mJokes[position];
+            Joke currentJoke = mJokes.get(position);
             Log.d("INIT","START");
             holder.questionTextView.setText(currentJoke.getQuestion());
             if (currentJoke.getClicked()) {
